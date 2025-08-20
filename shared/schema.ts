@@ -11,6 +11,16 @@ import {
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
+/**
+ * Helper: accept an ISO string / timestamp / Date but treat empty string as "not provided".
+ * Result: z returns a true Date or undefined.
+ */
+const optionalCoercedDate = z.preprocess((val) => {
+  // convert empty string => undefined (so optional will allow it)
+  if (typeof val === "string" && val.trim() === "") return undefined;
+  return val;
+}, z.coerce.date().optional());
+
 // Session storage table for JWT sessions
 export const sessions = pgTable(
   "sessions",
@@ -70,22 +80,40 @@ export const registerSchema = z.object({
 
 export type RegisterRequest = z.infer<typeof registerSchema>;
 
-export const insertIssueSchema = createInsertSchema(issues).omit({
-  id: true,
-  createdBy: true,
-  updatedBy: true,
-  createdAt: true,
-  updatedAt: true,
-});
+/**
+ * Insert schema: start from generated schema, then override expectedFixDate
+ * so it accepts string timestamps and coercers them to Date.
+ */
+export const insertIssueSchema = createInsertSchema(issues)
+  .omit({
+    id: true,
+    createdBy: true,
+    updatedBy: true,
+    createdAt: true,
+    updatedAt: true,
+  })
+  .extend({
+    // override the generated field with our tolerant date coercion
+    expectedFixDate: optionalCoercedDate,
+  });
 
 export type InsertIssue = z.infer<typeof insertIssueSchema>;
 export type Issue = typeof issues.$inferSelect;
 
-export const updateIssueSchema = createInsertSchema(issues).omit({
-  createdBy: true,
-  createdAt: true,
-  updatedBy: true,
-  updatedAt: true,
-}).partial();
+/**
+ * Update schema: make all fields optional (same as before) but override
+ * expectedFixDate to accept strings too.
+ */
+export const updateIssueSchema = createInsertSchema(issues)
+  .omit({
+    createdBy: true,
+    createdAt: true,
+    updatedBy: true,
+    updatedAt: true,
+  })
+  .partial()
+  .extend({
+    expectedFixDate: optionalCoercedDate,
+  });
 
 export type UpdateIssue = z.infer<typeof updateIssueSchema>;
