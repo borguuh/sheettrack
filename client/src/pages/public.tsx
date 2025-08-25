@@ -1,11 +1,18 @@
+// client/src/pages/public.tsx
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Bug, Shield, ExternalLink } from "lucide-react";
-import IssueTable from "@/components/IssueTable";
 import IssueFilters from "@/components/IssueFilters";
+import IssueView from "@/components/IssueView";
 import type { Issue } from "@shared/schema";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 export default function PublicIssueViewer() {
   const [filters, setFilters] = useState({
@@ -125,7 +132,7 @@ export default function PublicIssueViewer() {
   );
 }
 
-// Read-only version of the issue table for public viewing
+// Read-only version of the issue table for public viewing (with details modal)
 function PublicIssueTable({
   issues,
   isLoading,
@@ -135,6 +142,7 @@ function PublicIssueTable({
 }) {
   const [sortField, setSortField] = useState<keyof Issue>("createdAt");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
+  const [selectedIssueId, setSelectedIssueId] = useState<string | null>(null);
 
   const handleSort = (field: keyof Issue) => {
     if (sortField === field) {
@@ -185,109 +193,149 @@ function PublicIssueTable({
   }
 
   return (
-    <div className="overflow-x-auto">
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
-          <tr>
-            <th
-              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-              onClick={() => handleSort("title")}
-            >
-              Title
-            </th>
-            <th
-              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-              onClick={() => handleSort("type")}
-            >
-              Type
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Description
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Impact
-            </th>
-            <th
-              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-              onClick={() => handleSort("status")}
-            >
-              Status
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Expected Fix
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Created
-            </th>
-          </tr>
-        </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
-          {sortedIssues.map((issue) => (
-            <tr key={issue.id} className="hover:bg-gray-50">
-              <td className="px-6 py-4 whitespace-nowrap">
-                <div className="text-sm font-medium text-gray-900">
-                  {issue.title}
-                </div>
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap">
-                <span
-                  className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                    issue.type === "issue"
-                      ? "bg-red-100 text-red-800"
-                      : "bg-blue-100 text-blue-800"
-                  }`}
-                >
-                  {issue.type === "issue" ? "Issue" : "Feature Request"}
-                </span>
-              </td>
-              <td className="px-6 py-4">
-                <div
-                  className="text-sm text-gray-900 max-w-xs truncate"
-                  title={issue.description}
-                >
-                  {issue.description}
-                </div>
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap">
-                <span
-                  className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                    issue.impact === "Critical"
-                      ? "bg-red-100 text-red-800"
-                      : issue.impact === "High"
-                      ? "bg-orange-100 text-orange-800"
-                      : issue.impact === "Medium"
-                      ? "bg-yellow-100 text-yellow-800"
-                      : "bg-green-100 text-green-800"
-                  }`}
-                >
-                  {issue.impact}
-                </span>
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap">
-                <span
-                  className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                    issue.status === "open"
-                      ? "bg-red-100 text-red-800"
-                      : issue.status === "assigned"
-                      ? "bg-yellow-100 text-yellow-800"
-                      : "bg-green-100 text-green-800"
-                  }`}
-                >
-                  {issue.status.charAt(0).toUpperCase() + issue.status.slice(1)}
-                </span>
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {issue.expectedFixDate
-                  ? formatDate(issue.expectedFixDate)
-                  : "-"}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {formatDate(issue.createdAt)}
-              </td>
+    <>
+      <div className="overflow-x-auto">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                onClick={() => handleSort("title")}
+              >
+                Title
+              </th>
+              <th
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                onClick={() => handleSort("type")}
+              >
+                Type
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Description
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Impact
+              </th>
+              <th
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                onClick={() => handleSort("status")}
+              >
+                Status
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Expected Fix
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Created
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                View
+              </th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {sortedIssues.map((issue) => (
+              <tr
+                key={issue.id}
+                className="hover:bg-gray-50 cursor-pointer"
+                onClick={() => setSelectedIssueId(issue.id)}
+              >
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="text-sm font-medium text-gray-900">
+                    {issue.title}
+                  </div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <span
+                    className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                      issue.type === "issue"
+                        ? "bg-red-100 text-red-800"
+                        : "bg-blue-100 text-blue-800"
+                    }`}
+                  >
+                    {issue.type === "issue" ? "Issue" : "Feature Request"}
+                  </span>
+                </td>
+                <td className="px-6 py-4">
+                  <div
+                    className="text-sm text-gray-900 max-w-xs truncate"
+                    title={issue.description}
+                  >
+                    {issue.description}
+                  </div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <span
+                    className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                      issue.impact === "Critical"
+                        ? "bg-red-100 text-red-800"
+                        : issue.impact === "High"
+                        ? "bg-orange-100 text-orange-800"
+                        : issue.impact === "Medium"
+                        ? "bg-yellow-100 text-yellow-800"
+                        : "bg-green-100 text-green-800"
+                    }`}
+                  >
+                    {issue.impact}
+                  </span>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <span
+                    className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                      issue.status === "open"
+                        ? "bg-red-100 text-red-800"
+                        : issue.status === "assigned"
+                        ? "bg-yellow-100 text-yellow-800"
+                        : "bg-green-100 text-green-800"
+                    }`}
+                  >
+                    {issue.status.charAt(0).toUpperCase() +
+                      issue.status.slice(1)}
+                  </span>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {issue.expectedFixDate
+                    ? formatDate(issue.expectedFixDate)
+                    : "-"}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {formatDate(issue.createdAt)}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedIssueId(issue.id);
+                    }}
+                  >
+                    View
+                  </Button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Details modal — pass the already-fetched issue to avoid refetch */}
+      {selectedIssueId && (
+        <Dialog
+          open={!!selectedIssueId}
+          onOpenChange={() => setSelectedIssueId(null)}
+        >
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Issue Details</DialogTitle>
+            </DialogHeader>
+            <IssueView
+              issue={issues.find((i) => i.id === selectedIssueId)!}
+              onClose={() => setSelectedIssueId(null)}
+            />
+          </DialogContent>
+        </Dialog>
+      )}
+    </>
   );
 }
