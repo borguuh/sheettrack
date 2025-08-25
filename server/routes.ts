@@ -6,6 +6,17 @@ import { insertIssueSchema, updateIssueSchema, loginSchema, registerSchema } fro
 import { googleSheetsService } from "./services/googleSheets";
 import { z } from "zod";
 
+// Helper to sanitize epoch/invalid dates for client
+function serializeDate(d: any): string | "" {
+  if (!d) return "";
+  const date = (d instanceof Date) ? d : new Date(d);
+  const t = date.getTime();
+  if (Number.isNaN(t)) return "";
+  // Treat Unix epoch as empty (handles timezone quirks too)
+  if (t === 0 || date.getUTCFullYear() === 1970) return "";
+  return date.toISOString();
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Initialize Google Sheets
   await googleSheetsService.initializeSheet();
@@ -124,7 +135,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         description: issue.description,
         impact: issue.impact,
         status: issue.status,
-        expectedFixDate: issue.expectedFixDate,
+        expectedFixDate: serializeDate(issue.expectedFixDate),
         createdAt: issue.createdAt,
         updatedAt: issue.updatedAt,
       }));
@@ -153,7 +164,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         description: issue.description,
         impact: issue.impact,
         status: issue.status,
-        expectedFixDate: issue.expectedFixDate,
+        expectedFixDate: serializeDate(issue.expectedFixDate),
         createdAt: issue.createdAt,
         updatedAt: issue.updatedAt,
       };
