@@ -182,7 +182,10 @@ export default function IssueTable({
             <DialogHeader>
               <DialogTitle>Issue Details</DialogTitle>
             </DialogHeader>
-            <IssueView issue={issues.find((i) => i.id === selectedIssueId)!} />
+            <IssueView
+              issue={issues.find((i) => i.id === selectedIssueId)!}
+              onClose={() => setSelectedIssueId(null)}
+            />
           </DialogContent>
         </Dialog>
       )}

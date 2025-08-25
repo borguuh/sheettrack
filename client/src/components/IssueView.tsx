@@ -4,17 +4,22 @@ import IssueFields, { IssueShape } from "./IssueFields";
 
 export default function IssueView({
   id,
+  issue: initialIssue,
   onClose,
 }: {
-  id: string | null;
+  id?: string | null;
+  issue?: IssueShape | null;
   onClose: () => void;
 }) {
-  const [issue, setIssue] = useState<IssueShape | null>(null);
+  const [issue, setIssue] = useState<IssueShape | null>(initialIssue ?? null);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
   useEffect(() => {
+    // If an issue object was provided, don't fetch
+    if (initialIssue) return;
     if (!id) return;
+
     let cancelled = false;
     setLoading(true);
     setErr(null);
@@ -40,9 +45,10 @@ export default function IssueView({
     return () => {
       cancelled = true;
     };
-  }, [id]);
+  }, [id, initialIssue]);
 
-  if (!id) return null;
+  // If neither id nor initialIssue provided, do not render anything
+  if (!id && !initialIssue) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
