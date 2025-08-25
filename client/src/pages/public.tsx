@@ -226,7 +226,7 @@ function PublicIssueTable({
                 Expected Fix
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Created
+                Updated
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 View
@@ -299,7 +299,7 @@ function PublicIssueTable({
                     : "-"}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {formatDate(issue.createdAt)}
+                  {formatDate(issue.updatedAt)}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   <Button

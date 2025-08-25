@@ -71,8 +71,6 @@ export default function IssueFields({ issue }: { issue: IssueShape }) {
       />
       <FieldRow label="Created At" value={fmtDate(issue.createdAt)} />
       <FieldRow label="Updated At" value={fmtDate(issue.updatedAt)} />
-      <FieldRow label="Created By" value={issue.createdBy ?? ""} />
-      <FieldRow label="Updated By" value={issue.updatedBy ?? ""} />
     </div>
   );
 }
