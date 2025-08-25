@@ -106,7 +106,7 @@ export default function AuthPage() {
               <Bug className="h-12 w-12 text-primary-600" />
             </div>
             <h2 className="mt-6 text-3xl font-bold text-gray-900">
-              IssueTracker Pro
+              Fundco IT Issue Tracker
             </h2>
             <p className="mt-2 text-sm text-gray-600">
               Admin Authentication Required
@@ -198,7 +198,7 @@ export default function AuthPage() {
                           onClick={fillTestCredentials}
                           className="w-full"
                         >
-                          Use Test Credentials
+                          Test
                         </Button>
                       </div>
                     </form>
@@ -207,7 +207,7 @@ export default function AuthPage() {
               </Card>
             </TabsContent>
 
-            <TabsContent value="register">
+            {/*<TabsContent value="register">
               <Card>
                 <CardHeader>
                   <CardTitle>Create Account</CardTitle>
@@ -312,7 +312,7 @@ export default function AuthPage() {
                   </Form>
                 </CardContent>
               </Card>
-            </TabsContent>
+            </TabsContent>*/}
           </Tabs>
 
           <div className="text-center">
@@ -338,13 +338,14 @@ export default function AuthPage() {
             Access the admin panel to create, edit, and manage issues and feature requests. 
             All changes are automatically synced to Google Sheets for external reporting.
           </p>
-          <div className="mt-8 p-4 bg-white rounded-lg shadow-sm">
-            <h4 className="font-semibold text-gray-900 mb-2">Test Credentials</h4>
-            <div className="text-sm text-gray-600 space-y-1">
-              <p><strong>Email:</strong> admin@test.com</p>
-              <p><strong>Password:</strong> password123</p>
-            </div>
-          </div>
+          {//<div className="mt-8 p-4 bg-white rounded-lg shadow-sm">
+            ////<h4 className="font-semibold text-gray-900 mb-2">Test Credentials</h4>
+            //<div className="text-sm text-gray-600 space-y-1">
+             // <p><strong>Email:</strong> admin@test.com</p>
+             // <p><strong>Password:</strong> password123</p>
+           // </div>
+          //</div>
+          }
         </div>
       </div>
     </div>

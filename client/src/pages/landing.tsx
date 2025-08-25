@@ -12,11 +12,11 @@ export default function Landing() {
             <div className="flex items-center">
               <h1 className="text-2xl font-bold text-primary-700 flex items-center">
                 <Bug className="mr-2 h-6 w-6" />
-                IssueTracker Pro
+                Fundco IT Issue Tracker
               </h1>
             </div>
             <Button
-              onClick={() => window.location.href = '/api/login'}
+              onClick={() => (window.location.href = "/api/login")}
               className="inline-flex items-center bg-primary-600 hover:bg-primary-700"
             >
               <Shield className="mr-2 h-4 w-4" />
@@ -35,17 +35,20 @@ export default function Landing() {
           <p className="text-xl text-gray-600 mb-8">
             Track and manage project issues and feature requests with ease
           </p>
-          
+
           <Card className="max-w-md mx-auto">
             <CardHeader>
-              <CardTitle className="text-center">Admin Access Required</CardTitle>
+              <CardTitle className="text-center">
+                Admin Access Required
+              </CardTitle>
             </CardHeader>
             <CardContent className="text-center space-y-4">
               <p className="text-gray-600">
-                Please authenticate with admin credentials to access the issue tracker.
+                Please authenticate with admin credentials to access the issue
+                tracker.
               </p>
               <Button
-                onClick={() => window.location.href = '/api/login'}
+                onClick={() => (window.location.href = "/api/login")}
                 className="w-full bg-primary-600 hover:bg-primary-700"
               >
                 <Shield className="mr-2 h-4 w-4" />

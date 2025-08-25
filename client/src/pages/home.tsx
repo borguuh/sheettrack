@@ -6,7 +6,13 @@ import { isUnauthorizedError } from "@/lib/authUtils";
 import { apiRequest } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Bug, Shield, Plus, LogOut } from "lucide-react";
 import IssueTable from "@/components/IssueTable";
@@ -28,21 +34,23 @@ export default function Home() {
     queryKey: ["/api/issues", filters.status, filters.type, filters.search],
     queryFn: async () => {
       const params = new URLSearchParams();
-      if (filters.status) params.append('status', filters.status);
-      if (filters.type) params.append('type', filters.type);
-      if (filters.search) params.append('search', filters.search);
-      
-      const url = `/api/issues${params.toString() ? `?${params.toString()}` : ''}`;
+      if (filters.status) params.append("status", filters.status);
+      if (filters.type) params.append("type", filters.type);
+      if (filters.search) params.append("search", filters.search);
+
+      const url = `/api/issues${
+        params.toString() ? `?${params.toString()}` : ""
+      }`;
       const response = await fetch(url, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
-      
+
       if (!response.ok) {
         throw new Error(`${response.status}: ${await response.text()}`);
       }
-      
+
       return response.json();
     },
     retry: false,
@@ -96,7 +104,13 @@ export default function Home() {
   });
 
   const updateIssueMutation = useMutation({
-    mutationFn: async ({ id, issue }: { id: string; issue: Partial<Issue> }) => {
+    mutationFn: async ({
+      id,
+      issue,
+    }: {
+      id: string;
+      issue: Partial<Issue>;
+    }) => {
       const response = await apiRequest("PUT", `/api/issues/${id}`, issue);
       return response.json();
     },
@@ -171,16 +185,19 @@ export default function Home() {
             <div className="flex items-center">
               <h1 className="text-2xl font-bold text-primary-700 flex items-center">
                 <Bug className="mr-2 h-6 w-6" />
-                IssueTracker Pro
+                Fundco IT Issue Tracker
               </h1>
             </div>
-            
+
             <div className="flex items-center space-x-4">
-              <Badge variant="secondary" className="bg-primary-100 text-primary-800">
+              <Badge
+                variant="secondary"
+                className="bg-primary-100 text-primary-800"
+              >
                 <Shield className="mr-1 h-3 w-3" />
                 Admin Mode
               </Badge>
-              
+
               <Button
                 variant="outline"
                 onClick={() => {
@@ -215,9 +232,12 @@ export default function Home() {
                 Track and manage project issues and feature requests
               </p>
             </div>
-            
+
             <div className="mt-4 flex md:mt-0 md:ml-4">
-              <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+              <Dialog
+                open={isCreateDialogOpen}
+                onOpenChange={setIsCreateDialogOpen}
+              >
                 <DialogTrigger asChild>
                   <Button className="bg-primary-600 hover:bg-primary-700">
                     <Plus className="mr-2 h-4 w-4" />
@@ -253,7 +273,9 @@ export default function Home() {
             <IssueTable
               issues={issues}
               isLoading={isLoading}
-              onUpdate={(id, issue) => updateIssueMutation.mutate({ id, issue })}
+              onUpdate={(id, issue) =>
+                updateIssueMutation.mutate({ id, issue })
+              }
               onDelete={(id) => deleteIssueMutation.mutate(id)}
               isUpdating={updateIssueMutation.isPending}
               isDeleting={deleteIssueMutation.isPending}

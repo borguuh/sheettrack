@@ -18,17 +18,19 @@ export default function PublicIssueViewer() {
     queryKey: ["/api/issues", filters.status, filters.type, filters.search],
     queryFn: async () => {
       const params = new URLSearchParams();
-      if (filters.status) params.append('status', filters.status);
-      if (filters.type) params.append('type', filters.type);
-      if (filters.search) params.append('search', filters.search);
-      
-      const url = `/api/issues${params.toString() ? `?${params.toString()}` : ''}`;
+      if (filters.status) params.append("status", filters.status);
+      if (filters.type) params.append("type", filters.type);
+      if (filters.search) params.append("search", filters.search);
+
+      const url = `/api/issues${
+        params.toString() ? `?${params.toString()}` : ""
+      }`;
       const response = await fetch(url);
-      
+
       if (!response.ok) {
         throw new Error(`${response.status}: ${await response.text()}`);
       }
-      
+
       return response.json();
     },
     retry: false,
@@ -43,11 +45,11 @@ export default function PublicIssueViewer() {
             <div className="flex items-center">
               <h1 className="text-2xl font-bold text-primary-700 flex items-center">
                 <Bug className="mr-2 h-6 w-6" />
-                IssueTracker Pro
+                Fundco IT Issue Tracker
               </h1>
             </div>
             <Button
-              onClick={() => window.location.href = '/login'}
+              onClick={() => (window.location.href = "/login")}
               className="inline-flex items-center bg-primary-600 hover:bg-primary-700"
             >
               <Shield className="mr-2 h-4 w-4" />
@@ -67,13 +69,14 @@ export default function PublicIssueViewer() {
                 Public Issue Tracker
               </h2>
               <p className="mt-1 text-sm text-gray-500">
-                View all issues and feature requests. Admin login required to create or modify issues.
+                View all issues and feature requests. Admin login required to
+                create or modify issues.
               </p>
             </div>
-            
+
             <div className="mt-4 flex md:mt-0 md:ml-4">
               <Button
-                onClick={() => window.location.href = '/login'}
+                onClick={() => (window.location.href = "/login")}
                 variant="outline"
                 className="inline-flex items-center"
               >
@@ -94,7 +97,8 @@ export default function PublicIssueViewer() {
                   Public View Mode
                 </p>
                 <p className="text-sm text-blue-600">
-                  You can view all issues below. To create, edit, or delete issues, please login as an admin.
+                  You can view all issues below. To create, edit, or delete
+                  issues, please login as an admin.
                 </p>
               </div>
             </div>
@@ -122,30 +126,36 @@ export default function PublicIssueViewer() {
 }
 
 // Read-only version of the issue table for public viewing
-function PublicIssueTable({ issues, isLoading }: { issues: Issue[], isLoading: boolean }) {
-  const [sortField, setSortField] = useState<keyof Issue>('createdAt');
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
+function PublicIssueTable({
+  issues,
+  isLoading,
+}: {
+  issues: Issue[];
+  isLoading: boolean;
+}) {
+  const [sortField, setSortField] = useState<keyof Issue>("createdAt");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
 
   const handleSort = (field: keyof Issue) => {
     if (sortField === field) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
     } else {
       setSortField(field);
-      setSortDirection('asc');
+      setSortDirection("asc");
     }
   };
 
   const sortedIssues = [...issues].sort((a, b) => {
-    const aValue = a[sortField] ?? '';
-    const bValue = b[sortField] ?? '';
-    
-    if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
-    if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
+    const aValue = a[sortField] ?? "";
+    const bValue = b[sortField] ?? "";
+
+    if (aValue < bValue) return sortDirection === "asc" ? -1 : 1;
+    if (aValue > bValue) return sortDirection === "asc" ? 1 : -1;
     return 0;
   });
 
   const formatDate = (date: Date | string | null) => {
-    if (!date) return '-';
+    if (!date) return "-";
     const d = new Date(date);
     return d.toLocaleDateString();
   };
@@ -164,7 +174,9 @@ function PublicIssueTable({ issues, isLoading }: { issues: Issue[], isLoading: b
     return (
       <div className="text-center py-12">
         <Bug className="mx-auto h-12 w-12 text-gray-400" />
-        <h3 className="mt-2 text-sm font-medium text-gray-900">No issues found</h3>
+        <h3 className="mt-2 text-sm font-medium text-gray-900">
+          No issues found
+        </h3>
         <p className="mt-1 text-sm text-gray-500">
           No issues match your current filters.
         </p>
@@ -177,15 +189,15 @@ function PublicIssueTable({ issues, isLoading }: { issues: Issue[], isLoading: b
       <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-gray-50">
           <tr>
-            <th 
+            <th
               className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-              onClick={() => handleSort('title')}
+              onClick={() => handleSort("title")}
             >
               Title
             </th>
-            <th 
+            <th
               className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-              onClick={() => handleSort('type')}
+              onClick={() => handleSort("type")}
             >
               Type
             </th>
@@ -195,9 +207,9 @@ function PublicIssueTable({ issues, isLoading }: { issues: Issue[], isLoading: b
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
               Impact
             </th>
-            <th 
+            <th
               className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-              onClick={() => handleSort('status')}
+              onClick={() => handleSort("status")}
             >
               Status
             </th>
@@ -213,43 +225,61 @@ function PublicIssueTable({ issues, isLoading }: { issues: Issue[], isLoading: b
           {sortedIssues.map((issue) => (
             <tr key={issue.id} className="hover:bg-gray-50">
               <td className="px-6 py-4 whitespace-nowrap">
-                <div className="text-sm font-medium text-gray-900">{issue.title}</div>
+                <div className="text-sm font-medium text-gray-900">
+                  {issue.title}
+                </div>
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
-                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                  issue.type === 'issue' 
-                    ? 'bg-red-100 text-red-800' 
-                    : 'bg-blue-100 text-blue-800'
-                }`}>
-                  {issue.type === 'issue' ? 'Issue' : 'Feature Request'}
+                <span
+                  className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                    issue.type === "issue"
+                      ? "bg-red-100 text-red-800"
+                      : "bg-blue-100 text-blue-800"
+                  }`}
+                >
+                  {issue.type === "issue" ? "Issue" : "Feature Request"}
                 </span>
               </td>
               <td className="px-6 py-4">
-                <div className="text-sm text-gray-900 max-w-xs truncate" title={issue.description}>
+                <div
+                  className="text-sm text-gray-900 max-w-xs truncate"
+                  title={issue.description}
+                >
                   {issue.description}
                 </div>
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
-                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                  issue.impact === 'Critical' ? 'bg-red-100 text-red-800' :
-                  issue.impact === 'High' ? 'bg-orange-100 text-orange-800' :
-                  issue.impact === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
-                  'bg-green-100 text-green-800'
-                }`}>
+                <span
+                  className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                    issue.impact === "Critical"
+                      ? "bg-red-100 text-red-800"
+                      : issue.impact === "High"
+                      ? "bg-orange-100 text-orange-800"
+                      : issue.impact === "Medium"
+                      ? "bg-yellow-100 text-yellow-800"
+                      : "bg-green-100 text-green-800"
+                  }`}
+                >
                   {issue.impact}
                 </span>
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
-                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                  issue.status === 'open' ? 'bg-red-100 text-red-800' :
-                  issue.status === 'assigned' ? 'bg-yellow-100 text-yellow-800' :
-                  'bg-green-100 text-green-800'
-                }`}>
+                <span
+                  className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                    issue.status === "open"
+                      ? "bg-red-100 text-red-800"
+                      : issue.status === "assigned"
+                      ? "bg-yellow-100 text-yellow-800"
+                      : "bg-green-100 text-green-800"
+                  }`}
+                >
                   {issue.status.charAt(0).toUpperCase() + issue.status.slice(1)}
                 </span>
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {issue.expectedFixDate ? formatDate(issue.expectedFixDate) : '-'}
+                {issue.expectedFixDate
+                  ? formatDate(issue.expectedFixDate)
+                  : "-"}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                 {formatDate(issue.createdAt)}
