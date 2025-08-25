@@ -185,7 +185,7 @@ export default function Home() {
             <div className="flex items-center">
               <h1 className="text-2xl font-bold text-primary-700 flex items-center">
                 <Bug className="mr-2 h-6 w-6" />
-                Fundco IT Issue Tracker
+                Fundco IT
               </h1>
             </div>
 
